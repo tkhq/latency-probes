@@ -1,6 +1,6 @@
 # Turnkey v Privy Watch Tower
 
-This repo contains a selection of scripts to compare Turnkey and Privy's raw signing performance.
+This repo contains a selection of scripts to compare Turnkey, Privy and CDP wallet signing performance.
 
 You can run these locally by:
 1. Creating a new `secrets.env` file (see `secrets.env.example`)
