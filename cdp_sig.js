@@ -59,8 +59,9 @@ function pemToBytes(pem) {
   const b64 = lines
     .filter((l) => !l.startsWith("-----BEGIN") && !l.startsWith("-----END"))
     .join("");
-  const buf = encoding.b64decode(b64, "std"); // returns an ArrayBuffer
-  //return new Uint8Array(buf.split("").map((c) => c.charCodeAt(0)));
+
+    const buf = encoding.b64decode(b64, "std"); // returns an ArrayBuffer
+
   return new Uint8Array(buf);
 }
 
@@ -160,19 +161,11 @@ function nonce() {
 
 /**
  * Build a JWT for CDP.
- *
- * CDP SDK docs mention an 'uris' claim (omitted for websocket JWTs). :contentReference[oaicite:2]{index=2}
- * We set:
- * - header: { alg: ES256, typ: JWT, kid: <apiKeyId> }
- * - payload: standard time claims + uris: ["<METHOD> <HOST><PATH>"]
- *
- * NOTE: CDP’s exact required claims are defined in their auth docs; if you get 401,
- * the first thing to tweak is the payload shape (iss/sub/aud/uris format).
+ * See https://github.com/coinbase/cdp-sdk/blob/main/typescript/src/auth/utils/jwt.ts for reference implementation.
  */
 async function makeBearerJwt({ apiKeyId, apiKeySecretPemPkcs8, method, host, path, expiresInSec = 120 }) {
   const now = Math.floor(Date.now() / 1000);
   const n = nonce();
-  console.log("generated nonce", n);
 
   const header = {
     alg: "ES256",
@@ -202,10 +195,9 @@ async function makeBearerJwt({ apiKeyId, apiKeySecretPemPkcs8, method, host, pat
 }
 
 /**
- * Wallet-auth JWT. CDP requires X-Wallet-Auth for signing endpoints. :contentReference[oaicite:3]{index=3}
+ * Wallet-auth JWT (provided in X-Wallet-Auth for signing endpoints)
  *
- * The SDK API suggests wallet JWT generation depends on requestMethod/host/path AND requestData. :contentReference[oaicite:4]{index=4}
- * We include requestData in the payload to mirror that intent.
+ * See https://github.com/coinbase/cdp-sdk/blob/main/typescript/src/auth/utils/jwt.ts for reference implementation.
  */
 async function makeWalletJwt({ walletSecretPemPkcs8, method, host, path, requestData, expiresInSec = 120 }) {
   const now = Math.floor(Date.now() / 1000);
@@ -285,7 +277,6 @@ export default async function () {
   };
 
   const res = http.post(url, bodyStr, { headers });
-  console.log("response", res.status, res.error, res.body);
   latency.add(res.timings.duration);
 
   check(res, {
@@ -294,7 +285,6 @@ export default async function () {
     "signature is valid base64 encoding": (r) => {
       const sigDecoded = b64decode(r.json("signature"));
       const hexSig = arrayBufferToHex(sigDecoded);
-      console.log("decoded signature length", sigDecoded.length);
       return hexSig.length >= 128; // at least 32 bytes * 2 hex chars/byte
     },
   });
