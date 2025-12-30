@@ -5,7 +5,7 @@ import secrets from 'k6/secrets';
 import encoding from 'k6/encoding';
 
 const latency = new Trend('turnkey_sig_latency');
-const MESSAGE  = "HELLO FROM PRIVY HQ. How fast _are you_ today?";
+const MESSAGE  = "HELLO FROM TURNKEY HQ. How fast _are you_ today?";
 
 
 // --- Helpers ---------------------------------------------------------------
