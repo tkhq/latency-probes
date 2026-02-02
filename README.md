@@ -1,6 +1,6 @@
-# SLAP: Simple LAtency Probes
+# Signing Latency Probes
 
-This repo contains a collection of scripts to compare Turnkey, Privy and CDP wallet signing performance.
+This repo contains a collection of scripts to compare Turnkey, Privy and CDP wallet signing performance, via [k6](https://grafana.com/docs/k6/latest/), from various regions.
 
 You can run these locally by:
 1. Creating a new `secrets.env` file (see `secrets.env.example`)
